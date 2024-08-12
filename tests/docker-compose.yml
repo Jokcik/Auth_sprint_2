@@ -1,0 +1,76 @@
+services:
+  auth_service:
+    build:
+      context: ../auth_service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db/dbname
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  create_superuser:
+    build:
+      context: ../auth_service
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql://user:password@db/dbname
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: python main.py app create-admin
+
+  migrate:
+    build:
+      context: ../auth_service
+      dockerfile: migrate.Dockerfile
+    environment:
+      - DATABASE_URL=postgresql://user:password@db/dbname
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=dbname
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:6
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "6379:6379"
+
+  tests:
+    build: .
+    env_file:
+      - ./.env
+    depends_on:
+      - auth_service
+    entrypoint: >
+      sh -c "poetry run python3 /tests/functional/utils/wait_for_postgres.py
+      && poetry run python3 /tests/functional/utils/wait_for_redis.py
+      && poetry run pytest /tests/functional/src"

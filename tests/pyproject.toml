@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "tests"
+version = "0.1.0"
+description = ""
+authors = ["d.cherenkov <jokcik@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pytest = "7.4.3"
+pytest-asyncio = "0.21.1"
+aiohttp = "^3.9.5"
+redis = "^5.0.7"
+elasticsearch = {extras = ["async"], version = "^8.14.0"}
+pydantic = "^2.8.2"
+pydantic-settings = "^2.3.4"
+backoff = "^2.2.1"
+psycopg2-binary = "^2.9.9"
+asyncpg = "^0.29.0"
+sqlalchemy = "^2.0.31"
+faker = "^26.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

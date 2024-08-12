@@ -1,4 +1,83 @@
 # Проектная работа спринта
+Команда:  [Максим](https://github.com/4Surpr1se) [Данил](https://github.com/Jokcik) [Александра](https://github.com/schaleksandra)
+
+[Приглашение](https://github.com/Jokcik/Auth_sprint_2)
+
+This is a FastAPI-based authentication service
+
+## Setup
+
+1. Install dependencies:
+   ```
+   cd auth_service
+   poetry install
+   ```
+
+2. Run dependencies:
+   ```
+   docker-compose up redis db
+   ```
+   
+3. Run migrations:
+   ```
+   docker compose up migrate
+   ```
+
+4. Run the application:
+   ```
+   poetry run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+   ```
+
+## Миграции базы данных
+
+Для настройки схемы базы данных выполните следующие команды:
+
+1. Создайте новую миграцию (если вы внесли изменения в модели):
+   ```
+   alembic revision --autogenerate -m "Ваше сообщение о миграции"
+   ```
+2. Проверить SQL-запросы, которые будут применены:
+   ```
+   alembic upgrade head --sql > migration.sql
+   ```
+3. Примените миграции:
+   ```
+   alembic upgrade head
+   ```
+
+## Тесты
+
+### Локальный
+Вначале нужно запустить Elasticsearch и redis:
+```
+docker compose -f tests/docker-compose.yml up auth_service --build
+```
+
+и запускаем тесты:
+```
+export PYTHONPATH=$(pwd)
+poetry run pytest
+```
+
+### Docker compose
+```shell
+make test
+```
+
+### Flake8
+```shell
+pip install flake8
+flake8 auth_service --max-line-length 120 --count
+```
+
+Чтобы автоматически поправить:
+```shell
+pip install autoflake autopep8
+autoflake --in-place --remove-all-unused-imports --recursive auth_service
+autopep8 --in-place --recursive --aggressive --aggressive --max-line-length 120 auth_service
+```
+
+### Задание
 
 1. Создайте интеграцию Auth-сервиса с сервисом выдачи контента и административной панелью, используя контракт, который вы сделали в прошлом задании.
   
