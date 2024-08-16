@@ -16,10 +16,12 @@ class User(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, index=True)
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
+    hashed_password = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     roles = relationship("Role", secondary=user_roles, back_populates="users")
     login_history = relationship("LoginHistory", back_populates="user", cascade="all, delete-orphan")
+    oauth_provider = Column(String, nullable=True)
+    oauth_id = Column(String, nullable=True)
 
 
 class LoginHistory(Base):

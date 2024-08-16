@@ -2,7 +2,7 @@ import typer
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import auth, role, permission, user
+from api.v1 import auth, role, permission, user, oauth
 from commands import cli_app
 from core.config import settings
 from core.lifespan import lifespan
@@ -26,6 +26,8 @@ app.include_router(
     dependencies=[
         Depends(get_current_user_global)])
 app.include_router(user.router, prefix="/api/v1/users", tags=["users"], dependencies=[Depends(get_current_user_global)])
+
+app.include_router(oauth.router, prefix="/api/v1/oauth", tags=["oauth"])
 
 # Создаем новый Typer приложение для CLI команд
 cli = typer.Typer()

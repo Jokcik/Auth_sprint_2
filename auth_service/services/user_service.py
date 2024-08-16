@@ -60,6 +60,20 @@ class UserService:
         self.role_service = role_service
         self.login_history_service = login_history_service
 
+    def get_or_create_user_oauth(self, provider: str, user_info: dict) -> User:
+        user = self.db.query(User).filter(User.oauth_provider == provider, User.oauth_id == user_info['sub']).first()
+        if not user:
+            user = User(
+                username=user_info.get("name", user_info.get("email")),
+                email=user_info.get("email"),
+                oauth_provider=provider,
+                oauth_id=user_info["sub"]
+            )
+            self.db.add(user)
+            self.db.commit()
+            self.db.refresh(user)
+        return user
+
     def create_user(self, user_data: UserCreate):
         user = User(username=user_data.username, email=user_data.email,
                     hashed_password=self.get_password_hash(user_data.password))
