@@ -5,7 +5,8 @@ services:
   nginx:
     image: mirror.gcr.io/nginx:latest
     volumes:
-      - ./auth_service/nginx:/etc/nginx/conf.d:ro
+      - ./auth_service/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./auth_service/nginx/conf.d:/etc/nginx/conf.d:ro
     depends_on:
       - auth_service
     ports:

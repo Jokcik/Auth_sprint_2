@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Query
+from opentelemetry import trace
 
 from core.roles import UserRole
 from decorators.permissions import roles_required
@@ -9,6 +10,7 @@ from uuid import UUID
 from utils.auth_request import AuthRequest
 
 router = APIRouter()
+tracer = trace.get_tracer(__name__)
 
 
 @router.post("/", response_model=Permission,
@@ -21,8 +23,9 @@ async def create_permission(
     permission_data: PermissionCreate,
     permission_service: PermissionService = Depends()
 ):
-    permission = permission_service.create_permission(permission_data)
-    return permission
+    with tracer.start_as_current_span("create_permission") as span:
+        permission = permission_service.create_permission(permission_data)
+        return permission
 
 
 @router.get("/", response_model=PermissionPagination,
@@ -36,13 +39,14 @@ async def get_roles(
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1)
 ):
-    roles, total = permission_service.get_permissions(page, size)
-    return PermissionPagination(
-        items=roles,
-        total=total,
-        page=page,
-        size=size
-    )
+    with tracer.start_as_current_span("get_roles") as span:
+        roles, total = permission_service.get_permissions(page, size)
+        return PermissionPagination(
+            items=roles,
+            total=total,
+            page=page,
+            size=size
+        )
 
 
 @router.get("/{permission_id}",
@@ -55,7 +59,8 @@ async def get_permission(
     permission_id: UUID,
     permission_service: PermissionService = Depends()
 ):
-    return permission_service.get_permission(permission_id)
+    with tracer.start_as_current_span("get_permission") as span:
+        return permission_service.get_permission(permission_id)
 
 
 @router.put("/{permission_id}",
@@ -69,7 +74,8 @@ async def update_permission(
     permission_data: PermissionUpdate,
     permission_service: PermissionService = Depends()
 ):
-    return permission_service.update_permission(permission_id, permission_data)
+    with tracer.start_as_current_span("update_permission") as span:
+        return permission_service.update_permission(permission_id, permission_data)
 
 
 @router.delete("/{permission_id}",
@@ -82,4 +88,5 @@ async def delete_permission(
     permission_id: UUID,
     permission_service: PermissionService = Depends()
 ):
-    return permission_service.delete_permission(permission_id)
+    with tracer.start_as_current_span("delete_permission") as span:
+        return permission_service.delete_permission(permission_id)
