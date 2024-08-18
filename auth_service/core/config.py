@@ -33,5 +33,14 @@ class Settings(BaseSettings):
     first_superuser_email: str = Field(..., alias="FIRST_SUPERUSER_EMAIL")
     first_superuser_password: str = Field(..., alias="FIRST_SUPERUSER_PASSWORD")
 
+    yandex_client_id: str = Field(..., env="YANDEX_CLIENT_ID")
+    yandex_client_secret: str = Field(..., env="YANDEX_CLIENT_SECRET")
+
+    vk_client_id: str = Field(..., env="VK_CLIENT_ID")
+    vk_client_secret: str = Field(..., env="VK_CLIENT_SECRET")
+
+    google_client_id: str = Field(..., env="GOOGLE_CLIENT_ID")
+    google_client_secret: str = Field(..., env="GOOGLE_CLIENT_SECRET")
+
 
 settings = Settings()
