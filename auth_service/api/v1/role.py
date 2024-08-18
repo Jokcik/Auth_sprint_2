@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
+from opentelemetry import trace
 
 from core.roles import UserRole
 from decorators.permissions import roles_required
@@ -9,7 +10,7 @@ from schemas.role import RoleCreate, RoleUpdate, Role, RolePagination
 from utils.auth_request import AuthRequest
 
 router = APIRouter()
-
+tracer = trace.get_tracer(__name__)
 
 @router.post("/", response_model=Role,
              summary="Создание новой роли",
@@ -21,8 +22,10 @@ async def create_roles(
         role_data: RoleCreate,
         role_service: RoleService = Depends()
 ):
-    role = role_service.create_role(role_data)
-    return role
+    with tracer.start_as_current_span("create_roles") as span:
+        span.set_attribute("role_data", role_data)
+        role = role_service.create_role(role_data)
+        return role
 
 
 @router.get("/", response_model=RolePagination,
@@ -36,13 +39,14 @@ async def get_roles(
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1)
 ):
-    roles, total = role_service.get_roles(page, size)
-    return RolePagination(
-        items=roles,
-        total=total,
-        page=page,
-        size=size
-    )
+    with tracer.start_as_current_span("get_roles") as span:
+        roles, total = role_service.get_roles(page, size)
+        return RolePagination(
+            items=roles,
+            total=total,
+            page=page,
+            size=size
+        )
 
 
 @router.get("/{role_id}",
@@ -55,7 +59,8 @@ async def get_role(
     role_id: UUID,
     role_service: RoleService = Depends()
 ):
-    return role_service.get_role(role_id)
+    with tracer.start_as_current_span("get_role") as span:
+        return role_service.get_role(role_id)
 
 
 @router.put("/{role_id}",
@@ -69,7 +74,8 @@ async def update_role(
     role_data: RoleUpdate,
     role_service: RoleService = Depends()
 ):
-    return role_service.update_role(role_id, role_data)
+    with tracer.start_as_current_span("update_role") as span:
+        return role_service.update_role(role_id, role_data)
 
 
 @router.delete("/{role_id}",
@@ -82,7 +88,8 @@ async def delete_role(
     role_id: UUID,
     role_service: RoleService = Depends()
 ):
-    return role_service.delete_role(role_id)
+    with tracer.start_as_current_span("delete_role") as span:
+        return role_service.delete_role(role_id)
 
 
 @router.post("/{role_id}/permissions/{permission_id}",
@@ -96,7 +103,8 @@ async def add_permission_to_role(
         permission_id: UUID,
         role_service: RoleService = Depends()
 ):
-    return role_service.add_permission_to_role(role_id, permission_id)
+    with tracer.start_as_current_span("add_permission_to_role") as span:
+        return role_service.add_permission_to_role(role_id, permission_id)
 
 
 @router.delete("/{role_id}/permissions/{permission_id}",
@@ -110,4 +118,5 @@ async def remove_permission_from_role(
         permission_id: UUID,
         role_service: RoleService = Depends()
 ):
-    return role_service.remove_permission_from_role(role_id, permission_id)
+    with tracer.start_as_current_span("remove_permission_from_role") as span:
+        return role_service.remove_permission_from_role(role_id, permission_id)

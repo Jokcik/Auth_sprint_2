@@ -1,9 +1,12 @@
+from contextvars import ContextVar
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from core.logger import LOGGING
 from logging import config
 
 config.dictConfig(LOGGING)
+request_id_ctx = ContextVar("request_id")
 
 
 class Settings(BaseSettings):
@@ -33,14 +36,14 @@ class Settings(BaseSettings):
     first_superuser_email: str = Field(..., alias="FIRST_SUPERUSER_EMAIL")
     first_superuser_password: str = Field(..., alias="FIRST_SUPERUSER_PASSWORD")
 
-    yandex_client_id: str = Field(..., env="YANDEX_CLIENT_ID")
-    yandex_client_secret: str = Field(..., env="YANDEX_CLIENT_SECRET")
+    yandex_client_id: str = Field(..., alias="YANDEX_CLIENT_ID")
+    yandex_client_secret: str = Field(..., alias="YANDEX_CLIENT_SECRET")
 
-    vk_client_id: str = Field(..., env="VK_CLIENT_ID")
-    vk_client_secret: str = Field(..., env="VK_CLIENT_SECRET")
+    vk_client_id: str = Field(..., alias="VK_CLIENT_ID")
+    vk_client_secret: str = Field(..., alias="VK_CLIENT_SECRET")
 
-    google_client_id: str = Field(..., env="GOOGLE_CLIENT_ID")
-    google_client_secret: str = Field(..., env="GOOGLE_CLIENT_SECRET")
+    google_client_id: str = Field(..., alias="GOOGLE_CLIENT_ID")
+    google_client_secret: str = Field(..., alias="GOOGLE_CLIENT_SECRET")
 
 
 settings = Settings()

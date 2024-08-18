@@ -1,11 +1,17 @@
+import logging
+import uuid
+
 import typer
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Depends, Request
 from fastapi.responses import ORJSONResponse
+from starlette import status
 
 from api.v1 import auth, role, permission, user, oauth
 from commands import cli_app
-from core.config import settings
+from core.config import settings, request_id_ctx
+from core.jeager import configure_tracer
 from core.lifespan import lifespan
+from core.limiter import configure_limiter
 from decorators.permissions import get_current_user_global
 
 app = FastAPI(
@@ -15,6 +21,26 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
     lifespan=lifespan
 )
+
+configure_limiter(app)
+configure_tracer(app)
+
+
+@app.middleware('http')
+async def add_tracing_middleware(request: Request, call_next):
+    try:
+        request_id = request.headers.get('X-Request-Id') or str(uuid.uuid4())
+        if not request_id:
+            return ORJSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
+                                  content={'detail': 'X-Request-Id is required'})
+
+        request_id_ctx.set(request_id)
+        response = await call_next(request)
+    except Exception as e:
+        logging.exception(f"Exception in middleware: {str(e)}")
+        raise e
+
+    return response
 
 
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"], dependencies=[Depends(get_current_user_global)])
