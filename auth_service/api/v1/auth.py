@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Body, Request
 from fastapi.security import OAuth2PasswordBearer
 from opentelemetry import trace
 
-from core.config import request_id_ctx
+from core.limiter import limiter
 from schemas.user import UserCreate, User as UserSchema, Token, UserLogin
 from services.auth_service import TokenValidationError
 from services.user_service import UserNotFoundError, TokenUserService
@@ -31,6 +31,7 @@ async def register(user: UserCreate,
             raise HTTPException(status_code=400, detail=str(e))
 
 
+@limiter.limit("100/minute")
 @router.post("/login", response_model=Token,
              summary="Вход пользователя в систему",
              description="Аутентифицирует пользователя и возвращает токены доступа и обновления.")

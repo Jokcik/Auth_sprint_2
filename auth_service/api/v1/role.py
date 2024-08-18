@@ -23,6 +23,7 @@ async def create_roles(
         role_service: RoleService = Depends()
 ):
     with tracer.start_as_current_span("create_roles") as span:
+        span.set_attribute("role_data", role_data)
         role = role_service.create_role(role_data)
         return role
 
