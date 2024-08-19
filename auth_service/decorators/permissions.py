@@ -43,10 +43,10 @@ class JWTBearer(HTTPBearer):
     ) -> Optional[User]:
         if credentials:
             if not credentials.scheme == "Bearer":
-                raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid authentication scheme.")
             user = await self.verify_jwt(credentials.credentials, user_service)
             if not user:
-                raise HTTPException(status_code=403, detail="Invalid token or expired token.")
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token or expired token.")
             return user
         else:
             return None

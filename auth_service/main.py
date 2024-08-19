@@ -22,8 +22,11 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-configure_limiter(app)
-configure_tracer(app)
+if settings.enable_limiters:
+    configure_limiter(app)
+
+if settings.enable_tracing:
+    configure_tracer(app)
 
 
 @app.middleware('http')

@@ -28,7 +28,7 @@ async def register(user: UserCreate,
         except ValueError as e:
             span.record_exception(e)
             logging.info(e)
-            raise HTTPException(status_code=400, detail=str(e))
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @limiter.limit("100/minute")
