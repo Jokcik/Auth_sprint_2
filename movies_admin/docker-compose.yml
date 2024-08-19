@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    depends_on:
+      - postgres
+    volumes:
+      - static_files:/var/www/static
+    env_file:
+      - ./config/.env
+    expose:
+      - 8000
+    restart: always
+
+  postgres:
+    image: mirror.gcr.io/postgres:13
+    expose:
+      - 5432
+    ports:
+        - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - ./config/.env
+
+  nginx:
+    image: mirror.gcr.io/nginx:latest
+    volumes:
+      - ./nginx:/etc/nginx/conf.d:ro
+      - static_files:/usr/share/nginx/html
+    depends_on:
+      - app
+    ports:
+      - "8000:80"
+
+volumes:
+  pgdata:
+  static_files:
+
