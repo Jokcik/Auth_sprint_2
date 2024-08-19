@@ -25,6 +25,12 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
 
+    enable_limiters: bool = Field(True, alias="ENABLE_LIMITERS")
+
+    enable_tracing: bool = Field(True, alias="ENABLE_TRACING")
+    jeager_agent_host: str = Field("localhost", alias="JEAGER_AGENT_HOST")
+    jeager_agent_port: int = Field(6831, alias="JEAGER_AGENT_PORT")
+
     # Redis settings
     redis_host: str = Field(default="localhost", alias="REDIS_HOST")
     redis_port: int = Field(default=6379, alias="REDIS_PORT")

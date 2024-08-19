@@ -33,8 +33,8 @@ def configure_tracer(app: FastAPI) -> None:
     trace.get_tracer_provider().add_span_processor(
         BatchSpanProcessor(
             JaegerExporter(
-                agent_host_name='localhost',
-                agent_port=6831,
+                agent_host_name=settings.jeager_agent_host,
+                agent_port=settings.jeager_agent_port,
             )
         )
     )
